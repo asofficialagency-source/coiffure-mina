@@ -46,24 +46,23 @@ main,footer{position:relative;z-index:1}
 .pill i{width:6px;height:6px;border-radius:50%;background:var(--pink);box-shadow:0 0 0 3px rgba(217,88,127,.25)}
 
 /* ---------- hero ---------- */
-.hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:120px 16px 90px;overflow:hidden}
-.hero .in{position:relative;z-index:2}
+/* one big hero photo/video (17-11). Desktop: text left, media right. Mobile: media full-bleed behind the text. */
+.hero{position:relative;min-height:100svh;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:clamp(32px,5vw,80px);max-width:1240px;margin:0 auto;padding:110px clamp(16px,4vw,48px) 70px;overflow:hidden}
+.hero .in{position:relative;z-index:2;text-align:left}
+.hm{position:relative;justify-self:end;width:min(100%,calc((100svh - 180px)*.8));aspect-ratio:4/5;border-radius:22px;overflow:hidden;background:var(--blush);box-shadow:0 40px 90px -40px rgba(80,20,40,.55)}
+.hm img,.hm video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%}
+.hm video{opacity:0;transition:opacity .8s var(--ease)}
+.hm video.on{opacity:1}
+.hero .tag{margin-left:0}
 .mark{font-size:10.5px;letter-spacing:4.5px;font-weight:500;color:var(--soft);text-transform:uppercase}
-h1{margin:18px 0 0;font-family:var(--serif);font-weight:400;font-style:italic;line-height:.98;letter-spacing:-.015em;font-size:clamp(54px,10.5vw,148px);padding:0 .06em .08em;
+h1{margin:18px 0 0;font-family:var(--serif);font-weight:400;font-style:italic;line-height:.98;letter-spacing:-.015em;font-size:clamp(52px,6.6vw,104px);padding:0 .06em .08em;
 background-image:linear-gradient(110deg,transparent 42%,rgba(255,255,255,.95) 49%,#FFE3EC 51%,transparent 58%),var(--silk);
 background-size:260% 100%,300% 100%;background-position:var(--sw) 50%,var(--bx,30%) 50%;-webkit-background-clip:text;background-clip:text;color:transparent;
 animation:sweep 4.8s var(--ease) infinite;filter:drop-shadow(0 10px 30px rgba(217,88,127,.18))}
 @keyframes sweep{0%{--sw:125%}55%,100%{--sw:-25%}}
 .tag{margin:22px auto 0;max-width:420px;font-size:15px;color:var(--soft);line-height:1.6}
 .hero .pill{margin-top:30px;font-size:13.5px;padding:14px 24px}
-.cue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);width:1px;height:42px;background:linear-gradient(var(--pink),transparent);z-index:2}
-.fl{position:absolute;z-index:1;width:var(--w);aspect-ratio:4/5;border-radius:14px;overflow:hidden;box-shadow:0 30px 60px -28px rgba(80,20,40,.45);transform:rotate(var(--r));will-change:transform;opacity:0;transition:opacity 1.2s var(--ease)}
-.fl.on{opacity:1}
-.fl img{width:100%;height:100%;object-fit:cover}
-.f1{--w:clamp(92px,13vw,178px);--r:-8deg;left:5%;top:17%}
-.f2{--w:clamp(78px,11vw,148px);--r:6deg;left:13%;bottom:9%}
-.f3{--w:clamp(84px,12vw,160px);--r:7deg;right:6%;top:15%}
-.f4{--w:clamp(92px,13.5vw,186px);--r:-5deg;right:12%;bottom:7%}
+.cue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);width:1px;height:42px;background:linear-gradient(var(--pink),transparent);z-index:2;display:none}
 
 /* ---------- sections ---------- */
 .sec{position:relative;padding:clamp(84px,10.5vw,132px) 0}
@@ -285,8 +284,14 @@ footer .fl0{height:54px;width:auto;margin:0 auto 28px}
 @media(max-width:760px){
 .hd{height:68px}.hd.sm{height:56px}.hd .logo{height:46px}.hd.sm .logo{height:34px}.hd .loc{display:none}.hd .lg{display:none}.hd .sh{display:inline}
 .pill{padding:9px 14px;font-size:12px}
-.hero{padding:110px 16px 100px}
-.f1{left:-14px;top:86px}.f2{left:10px;bottom:34px}.f3{right:-12px;top:96px}.f4{right:6px;bottom:22px}
+.hero{display:flex;flex-direction:column;justify-content:flex-end;max-width:none;padding:110px 16px calc(44px + env(safe-area-inset-bottom));gap:0}
+.hm{position:absolute;inset:0;justify-self:auto;width:auto;aspect-ratio:auto;border-radius:0;box-shadow:none;z-index:0}
+.hm:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.9) 0,rgba(255,255,255,0) 18%,rgba(23,17,15,0) 38%,rgba(23,17,15,.6) 60%,rgba(23,17,15,.78) 80%,rgba(23,17,15,.86) 100%)}
+.hero .in{text-align:center;width:100%}
+.hero .mark{color:rgba(255,255,255,.85)}
+.hero h1{background:none;color:#fff;-webkit-text-fill-color:#fff;animation:none;filter:drop-shadow(0 6px 24px rgba(0,0,0,.35));font-size:clamp(48px,14vw,72px)}
+.hero .tag{margin:16px auto 0;color:rgba(255,255,255,.88)}
+.hero .pill{background:#fff;color:var(--ink)}
 .svcs{grid-template-columns:1fr 1fr;gap:12px}
 .svcs .svc:last-child{grid-column:span 2}
 .svcs .svc:last-child .ph{aspect-ratio:16/10}
@@ -302,7 +307,7 @@ footer .fl0{height:54px;width:auto;margin:0 auto 28px}
 @media(prefers-reduced-motion:reduce){
 *,*:before,*:after{animation:none!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 .rv{opacity:1;transform:none}
-.fl{opacity:1}
+
 }
 </style></head>
 <body class="nojs"><script>document.body.className=""</script>
@@ -317,15 +322,20 @@ footer .fl0{height:54px;width:auto;margin:0 auto 28px}
 
 <main id="top">
 <section class="hero">
-  <div class="fl f1" data-sp=".22" data-mx="14"><img src="img/ig-bodywave.jpg" alt="Long body-wave sew-in by Coiffure Mina"></div>
-  <div class="fl f2" data-sp=".38" data-mx="22"><img src="img/ig-curly.jpg" alt="Curly flip-over sew-in by Coiffure Mina"></div>
-  <div class="fl f3" data-sp=".30" data-mx="-18"><img src="img/ig-straight.jpg" alt="Straight sew-in by Coiffure Mina"></div>
-  <div class="fl f4" data-sp=".16" data-mx="-12"><img src="img/ig-halfup.jpg" alt="Half-up half-down by Coiffure Mina"></div>
   <div class="in">
     <div class="mark">Sew-ins · Ponytails · Extensions</div>
     <h1>Redefining<br>Confidence</h1>
     <p class="tag">Extensions for curly &amp; coily hair that look like you, and protect the hair underneath.</p>
     <button class="pill" data-book><i></i>Book your appointment</button>
+  </div>
+  <div class="hm">
+    <img src="img/ig-layers.jpg" alt="Long layered sew-in by Coiffure Mina" fetchpriority="high">
+    <!-- HERO VIDEO: put Mina's video in the img folder as img/hero.mp4 (vertical, short, H.264, ideally under 8 MB).
+         Nothing else to change: it autoplays muted on loop and fades in over the photo.
+         No file yet = the photo above stays (the video simply never shows). -->
+    <video class="hv" autoplay muted loop playsinline preload="metadata" aria-hidden="true" poster="img/ig-layers.jpg">
+      <source src="img/hero.mp4" type="video/mp4">
+    </video>
   </div>
   <span class="cue" aria-hidden="true"></span>
 </section>
@@ -512,13 +522,13 @@ const DEPOSIT_NOTE = "€20–30, deducted from your total. Payment link follows
 /* ===================================================== */
 
 const SERVICES=[
- {id:"sewin",name:"Sew-in leave-out",img:"img/ig-bodywave.jpg",lasts:"4–8 weeks",
+ {id:"sewin",name:"Sew-in leave-out",img:"img/ig-straight.jpg",lasts:"4–8 weeks",
   what:"Extensions sewn onto a braid-down, with a little of your own hair left out and blended in.",
   who:"Curly and coily hair, natural or previously relaxed. Fine hair gets an adapted leave-out."},
  {id:"curly",name:"Curly flip\u2011over",img:"img/ig-curly-3.jpg",lasts:"4–8 weeks",
   what:"A sew-in with a full curly finish, made to blend with curly and coily textures.",
   who:"Anyone who wants volume and curls that look like her own."},
- {id:"straight",name:"Straight flip\u2011over",img:"img/ig-straight.jpg",lasts:"4–8 weeks",
+ {id:"straight",name:"Straight flip\u2011over",img:"img/ig-bodywave.jpg",lasts:"4–8 weeks",
   what:"A sew-in with a sleek, straight finish.",
   who:"Anyone who wants long, sleek hair without heat on her own hair every day."},
  {id:"pony",name:"Ponytail",img:"img/ig-halfup-2.jpg",lasts:"1.5–2 weeks",
@@ -641,16 +651,15 @@ $$(".rv").forEach(el=>io.observe(el));
 /* anchors */
 $$('a[href^="#"]:not([data-book])').forEach(a=>a.addEventListener("click",e=>{const el=document.getElementById(a.getAttribute("href").slice(1));if(!el)return;e.preventDefault();el.scrollIntoView({behavior:RED?"auto":"smooth"})}));
 
-/* ================= header + hero parallax ================= */
-const hd=$("#hd"),fls=$$(".fl");let sy=scrollY,pmx=0,tmx=0;
-setTimeout(()=>fls.forEach((f,i)=>setTimeout(()=>f.classList.add("on"),i*140)),150);
+/* ================= header + hero video ================= */
+const hd=$("#hd");let sy=scrollY;
 addEventListener("scroll",()=>{sy=scrollY;hd.classList.toggle("sm",sy>30)},{passive:true});hd.classList.toggle("sm",sy>30);
-addEventListener("pointermove",e=>{tmx=e.clientX/innerWidth-.5});
-function para(){pmx+=(tmx-pmx)*.06;
- if(sy<innerHeight*1.3)fls.forEach(f=>{const sp=+f.dataset.sp,mx=+f.dataset.mx,r=getComputedStyle(f).getPropertyValue("--r");
-  f.style.transform=`translate3d(${(pmx*mx).toFixed(2)}px,${(-sy*sp).toFixed(1)}px,0) rotate(calc(${r} + ${(sy*.012*(mx>0?1:-1)).toFixed(2)}deg))`});
- requestAnimationFrame(para)}
-if(!RED)requestAnimationFrame(para);
+/* hero video: shows only when img/hero.mp4 exists and plays; otherwise the photo stays */
+(function(){const v=$(".hero video");if(!v)return;
+ if(RED){v.remove();return}
+ const src=$("source",v);src&&src.addEventListener("error",()=>v.remove());v.addEventListener("error",()=>v.remove());
+ v.addEventListener("playing",()=>v.classList.add("on"),{once:true});
+ v.play().catch(()=>{})})();
 
 /* ================= custom cursor (fine pointers only) ================= */
 if(matchMedia("(hover:hover) and (pointer:fine)").matches){
