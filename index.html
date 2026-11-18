@@ -6,6 +6,15 @@
     blocking yet: two clients can request the same slot. Real-time blocking needs a backend later
     (e.g. a small DB/Sheet that stores taken slots + an endpoint the calendar reads).
   - "Pay deposit now" does not charge anything: Mina sends a payment link by message.
+  Changes 18-11 (call with Mina):
+  - Hero title: solid, readable colour (no shiny gradient / sweep), upright Playfair like her banner D.
+  - Hero photo now crossfades between 4 client photos (HERO_PHOTOS in the config).
+  - Durations: Ponytail 2 to 3 hours, Half-up half-down 3 hours (per service "time" field).
+  - Hair question: only "I have my own hair" / "Pre-order extensions". "I need hair", colour,
+    length and the layers/trim extra are removed; new "Style" question (Bob, Layers, Natural, I don't know yet).
+  - New required consent checkbox (filming + sharing photos/videos), sent to Web3Forms.
+  - Hours: edit HOURS (per weekday) + BLOCKED_DATES at the top of the script. Starts at 10:00, never earlier.
+  - Payment: cash option removed, fixed EUR 20 deposit. DEPOSIT_LINK = "" -> set a link to show a "Pay EUR 20 deposit" button.
 -->
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Coiffure Mina · Book your appointment</title>
@@ -15,7 +24,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet">
 <style>
-@property --sw{syntax:'<percentage>';inherits:false;initial-value:120%}
 :root{--ink:#17110F;--soft:#5E5054;--muted:#A0919A;--line:#F2E1E7;--pink:#D9587F;--pink-d:#A8325A;--deep:#8E2A4C;--blush:#FDF1F5;--blush2:#FFF8FA;
 --silk:linear-gradient(100deg,#A8325A 0%,#F3B9CA 16%,#FFF6F9 28%,#D9587F 42%,#F6CFDB 54%,#FFFFFF 62%,#C2496E 76%,#F8DCE5 88%,#8E2A4C 100%);
 --rose:linear-gradient(100deg,#E58AA6 0%,#C2496E 35%,#8E2A4C 60%,#D9587F 100%);
@@ -51,15 +59,14 @@ main,footer{position:relative;z-index:1}
 .hero .in{position:relative;z-index:2;text-align:left}
 .hm{position:relative;justify-self:end;width:min(100%,calc((100svh - 180px)*.8));aspect-ratio:4/5;border-radius:22px;overflow:hidden;background:var(--blush);box-shadow:0 40px 90px -40px rgba(80,20,40,.55)}
 .hm img,.hm video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%}
+.hm img.hr{opacity:0;transition:opacity 1.2s ease}
+.hm img.hr.on{opacity:1}
 .hm video{opacity:0;transition:opacity .8s var(--ease)}
 .hm video.on{opacity:1}
 .hero .tag{margin-left:0}
 .mark{font-size:10.5px;letter-spacing:4.5px;font-weight:500;color:var(--soft);text-transform:uppercase}
-h1{margin:18px 0 0;font-family:var(--serif);font-weight:400;font-style:italic;line-height:.98;letter-spacing:-.015em;font-size:clamp(52px,6.6vw,104px);padding:0 .06em .08em;
-background-image:linear-gradient(110deg,transparent 42%,rgba(255,255,255,.95) 49%,#FFE3EC 51%,transparent 58%),var(--silk);
-background-size:260% 100%,300% 100%;background-position:var(--sw) 50%,var(--bx,30%) 50%;-webkit-background-clip:text;background-clip:text;color:transparent;
-animation:sweep 4.8s var(--ease) infinite;filter:drop-shadow(0 10px 30px rgba(217,88,127,.18))}
-@keyframes sweep{0%{--sw:125%}55%,100%{--sw:-25%}}
+/* 18-11: solid readable title (no shiny gradient/sweep), upright Playfair like Mina's banner D */
+h1{margin:18px 0 0;font-family:var(--serif);font-weight:500;font-style:normal;line-height:1.02;letter-spacing:-.025em;font-size:clamp(48px,6vw,96px);padding:0 0 .06em;color:var(--ink)}
 .tag{margin:22px auto 0;max-width:420px;font-size:15px;color:var(--soft);line-height:1.6}
 .hero .pill{margin-top:30px;font-size:13.5px;padding:14px 24px}
 .cue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);width:1px;height:42px;background:linear-gradient(var(--pink),transparent);z-index:2;display:none}
@@ -71,8 +78,7 @@ animation:sweep 4.8s var(--ease) infinite;filter:drop-shadow(0 10px 30px rgba(21
 .head{text-align:center;max-width:560px;margin:0 auto}
 .k{font-size:10.5px;letter-spacing:4px;font-weight:500;color:var(--pink-d);text-transform:uppercase;margin:0 0 20px}
 .h2{font-family:var(--serif);font-weight:400;font-size:clamp(28px,3.4vw,40px);line-height:1.14;letter-spacing:-.01em;margin:0}
-.h2 em,.em{font-style:italic;background:var(--rose);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:roseflow 9s ease-in-out infinite alternate;padding-right:.05em}
-@keyframes roseflow{to{background-position:100% 50%}}
+.h2 em,.em{font-style:italic;color:var(--pink-d);padding-right:.05em}
 .lead{margin:18px auto 0;max-width:430px;color:var(--soft);font-size:15px}
 .body{margin-top:clamp(56px,7vw,84px)}
 
@@ -198,7 +204,7 @@ footer .fl0{height:54px;width:auto;margin:0 auto 28px}
 .bm .ft{display:flex;gap:10px;align-items:center;padding:16px 28px 24px;border-top:1px solid var(--line);background:#fff}
 .bm .ft .sp{flex:1}
 .back{border:0;background:none;cursor:pointer;font-size:13px;color:var(--soft);padding:10px 4px}
-.back[hidden]{display:none}
+.back[hidden],#depbtn[hidden]{display:none}
 .nx{padding:13px 24px;font-size:13px}
 .nx:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
 .stp{display:none;animation:fadein .5s var(--ease)}
@@ -286,10 +292,10 @@ footer .fl0{height:54px;width:auto;margin:0 auto 28px}
 .pill{padding:9px 14px;font-size:12px}
 .hero{display:flex;flex-direction:column;justify-content:flex-end;max-width:none;padding:110px 16px calc(44px + env(safe-area-inset-bottom));gap:0}
 .hm{position:absolute;inset:0;justify-self:auto;width:auto;aspect-ratio:auto;border-radius:0;box-shadow:none;z-index:0}
-.hm:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.9) 0,rgba(255,255,255,0) 18%,rgba(23,17,15,0) 38%,rgba(23,17,15,.6) 60%,rgba(23,17,15,.78) 80%,rgba(23,17,15,.86) 100%)}
+.hm:after{content:"";position:absolute;inset:0;z-index:3;background:linear-gradient(180deg,rgba(255,255,255,.9) 0,rgba(255,255,255,0) 18%,rgba(23,17,15,0) 38%,rgba(23,17,15,.6) 60%,rgba(23,17,15,.78) 80%,rgba(23,17,15,.86) 100%)}
 .hero .in{text-align:center;width:100%}
 .hero .mark{color:rgba(255,255,255,.85)}
-.hero h1{background:none;color:#fff;-webkit-text-fill-color:#fff;animation:none;filter:drop-shadow(0 6px 24px rgba(0,0,0,.35));font-size:clamp(48px,14vw,72px)}
+.hero h1{color:#fff;text-shadow:0 4px 22px rgba(0,0,0,.35);font-size:clamp(44px,12.5vw,68px)}
 .hero .tag{margin:16px auto 0;color:rgba(255,255,255,.88)}
 .hero .pill{background:#fff;color:var(--ink)}
 .svcs{grid-template-columns:1fr 1fr;gap:12px}
@@ -329,7 +335,8 @@ footer .fl0{height:54px;width:auto;margin:0 auto 28px}
     <button class="pill" data-book><i></i>Book your appointment</button>
   </div>
   <div class="hm">
-    <img src="img/ig-layers.jpg" alt="Long layered sew-in by Coiffure Mina" fetchpriority="high">
+    <img class="hr on" src="img/ig-layers.jpg" alt="Long layered sew-in by Coiffure Mina" fetchpriority="high">
+    <!-- more hero photos are added by the script (HERO_PHOTOS) and crossfade every 4 s -->
     <!-- HERO VIDEO: put Mina's video in the img folder as img/hero.mp4 (vertical, short, H.264, ideally under 8 MB).
          Nothing else to change: it autoplays muted on loop and fades in over the photo.
          No file yet = the photo above stays (the video simply never shows). -->
@@ -383,7 +390,7 @@ footer .fl0{height:54px;width:auto;margin:0 auto 28px}
       <div class="bx dark rv">
         <p class="k">CM Xtensions</p>
         <h3>Need hair?<br><em>Meet CM Xtensions.</em></h3>
-        <p>My extension line, in pre-order drops with free shipping. Pick it in your booking and we'll choose the right hair together.</p>
+        <p>My extension line, in pre-order drops with free shipping. Choose "Pre-order extensions" in your booking and your hair will be ready at your appointment.</p>
         <a class="lnk" href="cmx.html">See the hair →</a>
       </div>
       <div class="bx rv" style="--d:.1s">
@@ -391,8 +398,8 @@ footer .fl0{height:54px;width:auto;margin:0 auto 28px}
         <h3>Come ready.</h3>
         <ul>
           <li>Washed and blow-dried hair. There's no wash at the salon.</li>
-          <li>Your own hair, or hair from a CMX pre-order.</li>
-          <li>Plan about 4 to 5 hours.</li>
+          <li>Your own hair, or pre-ordered extensions from CM Xtensions.</li>
+          <li>Plan about 4 to 5 hours for a sew-in, 2 to 3 hours for a ponytail, 3 hours for half-up half-down.</li>
           <li>No same-day bookings.</li>
           <li>You get the exact address after booking.</li>
         </ul>
@@ -409,7 +416,7 @@ footer .fl0{height:54px;width:auto;margin:0 auto 28px}
       <details><summary>Will it damage my hair?<i></i></summary><div class="a"><p>I check your hair first, explain the risks honestly and choose the approach that suits it. Your own hair comes first.</p></div></details>
       <details><summary>Is it suitable for my texture?<i></i></summary><div class="a"><p>Most often, yes. I adapt the technique, for example stretching coily hair for a sleek ponytail, or adjusting the leave-out for fine hair.</p></div></details>
       <details><summary>How long does it last?<i></i></summary><div class="a"><p>A sew-in lasts 4 to 8 weeks. A ponytail about 1.5 to 2 weeks, half-up half-down about 2 weeks.</p></div></details>
-      <details><summary>How long is the appointment?<i></i></summary><div class="a"><p>About 4 to 5 hours. Plan your day around it.</p></div></details>
+      <details><summary>How long is the appointment?<i></i></summary><div class="a"><p>A sew-in takes about 4 to 5 hours, a ponytail 2 to 3 hours, half-up half-down about 3 hours. Plan your day around it.</p></div></details>
       <details><summary>Do you wash my hair?<i></i></summary><div class="a"><p>No. Please come with washed and blow-dried hair, so we can start right away.</p></div></details>
       <details><summary>What if something comes loose?<i></i></summary><div class="a"><p>Message me. If it's down to my work, I look at it and fix it. Best within the first 1 to 2 weeks.</p></div></details>
     </div>
@@ -468,15 +475,14 @@ footer .fl0{height:54px;width:auto;margin:0 auto 28px}
         <h4>Your hair.</h4><p class="sub">So Mina knows exactly what you want.</p>
         <div class="q"><span>Your hair type</span><div class="cg" data-n="hair_type"><label><input type="radio" name="hair_type" value="Curly (type 3)"><span>Curly · type 3</span></label><label><input type="radio" name="hair_type" value="Coily (type 4)"><span>Coily · type 4</span></label><label><input type="radio" name="hair_type" value="Not sure"><span>Not sure</span></label></div></div>
         <div class="q"><span>Your own hair is <em>(optional)</em></span><div class="cg"><label><input type="radio" name="hair_state" value="Natural"><span>Natural</span></label><label><input type="radio" name="hair_state" value="Previously relaxed"><span>Previously relaxed</span></label><label><input type="radio" name="hair_state" value="Heat damaged"><span>Some heat damage</span></label></div></div>
-        <div class="q"><span>Hair for the install</span><div class="cg"><label><input type="radio" name="hair_source" value="I have my own hair"><span>I have my own</span></label><label><input type="radio" name="hair_source" value="I need hair (CM Xtensions)"><span>I need hair</span></label><label><input type="radio" name="hair_source" value="Pre-order from a CMX drop"><span>CMX pre-order</span></label></div></div>
-        <div class="q"><span>Length you want <em>(optional)</em></span><div class="cg"><label><input type="radio" name="hair_length" value="Shoulder"><span>Shoulder</span></label><label><input type="radio" name="hair_length" value="Mid-back"><span>Mid-back</span></label><label><input type="radio" name="hair_length" value="Waist"><span>Waist</span></label><label><input type="radio" name="hair_length" value="Not sure"><span>Not sure</span></label></div></div>
-        <div class="q"><span>Colour <em>(optional)</em></span><div class="cg"><label><input type="radio" name="colour" value="Natural black"><span>Natural black</span></label><label><input type="radio" name="colour" value="Brown"><span>Brown</span></label><label><input type="radio" name="colour" value="Blond"><span>Blond</span></label><label><input type="radio" name="colour" value="Not sure"><span>Not sure</span></label></div></div>
-        <div class="q"><span>Extra <em>(optional)</em></span><div class="cg"><label><input type="checkbox" name="extra" value="Layers / trim"><span>Layers or a trim</span></label></div></div>
+        <div class="q"><span>Hair for the install</span><div class="cg"><label><input type="radio" name="hair_source" value="I have my own hair"><span>I have my own hair</span></label><label><input type="radio" name="hair_source" value="Pre-order extensions"><span>Pre-order extensions</span></label></div></div>
+        <p class="hint" id="preo" hidden>Mina orders the hair for you and it will be there at your appointment. <a href="cmx.html" target="_blank" rel="noopener" style="color:var(--pink-d)">See the extensions →</a></p>
+        <div class="q"><span>Style</span><div class="cg"><label><input type="radio" name="style" value="Bob"><span>Bob</span></label><label><input type="radio" name="style" value="Layers"><span>Layers</span></label><label><input type="radio" name="style" value="Natural (no big cuts)"><span>Natural (no big cuts)</span></label><label><input type="radio" name="style" value="I don't know yet"><span>I don't know yet</span></label></div></div>
         <label class="fld"><span>Inspiration photo <em>(link, optional)</em></span><input type="url" name="inspiration" placeholder="Instagram, TikTok or Pinterest link" inputmode="url"></label>
         <label class="fld"><span>Anything I should know? <em>(optional)</em></span><textarea name="notes" placeholder="Hair history, worries, the look you dream about"></textarea></label>
       </div>
       <div class="stp" data-s="3">
-        <h4>Pick a day.</h4><p class="sub">About 4 to 5 hours, all included.</p>
+        <h4>Pick a day.</h4><p class="sub" id="dur">About 4 to 5 hours, all included.</p>
         <div class="cal"><div class="mh"><button type="button" id="cpv" aria-label="Previous month">‹</button><b id="cmt"></b><button type="button" id="cnx" aria-label="Next month">›</button></div><div class="gr" id="cgr"></div></div>
         <div id="slw"></div>
       </div>
@@ -489,20 +495,22 @@ footer .fl0{height:54px;width:auto;margin:0 auto 28px}
         <label class="fld"><span>Birthday <em>(optional, for a little birthday surprise)</em></span><input type="date" name="birthday" autocomplete="bday"></label>
       </div>
       <div class="stp" data-s="5">
-        <h4>Payment.</h4><p class="sub">How would you like to pay?</p>
+        <h4>Deposit.</h4><p class="sub">Every booking has a €20 deposit.</p>
         <div class="opts pay">
-          <label class="opt"><input type="radio" name="payment" value="Pay deposit now"><div><b>Pay deposit now</b><small id="deptx">Payment link follows by message.</small></div><span class="ck"></span></label>
-          <label class="opt"><input type="radio" name="payment" value="Pay in cash at the salon"><div><b>Pay in cash at the salon</b><small>Pay on the day of your appointment.</small></div><span class="ck"></span></label>
+          <label class="opt"><input type="radio" name="payment" value="Pay the €20 deposit now"><div><b>Pay the €20 deposit now</b><small id="deptx">The deposit is deducted from the price.</small></div><span class="ck"></span></label>
         </div>
         <div class="sum" id="sum"></div>
         <label class="agree"><input type="checkbox" name="ready" value="yes"> I'll come with washed and blow-dried hair.</label>
+        <label class="agree" style="margin-top:10px"><input type="checkbox" name="consent" value="yes"> I agree that Mina may film my appointment and share photos/videos of my hair and face on social media and the website.</label>
         <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
         <p class="err" id="err" hidden></p>
       </div>
       <div class="stp" data-s="6">
         <div class="done"><div class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
         <h4>Request sent.</h4><p id="donep">Mina confirms your appointment by message and sends you the address.</p>
-        <button type="button" class="pill" data-close style="margin-top:28px"><i></i>Back to the page</button></div>
+        <p><b>Your €20 deposit secures your slot.</b> <span id="depp">A payment link or QR code follows by message.</span></p>
+        <a class="pill" id="depbtn" href="#" target="_blank" rel="noopener" hidden style="margin-top:22px;background:var(--pink)"><i style="background:#fff"></i>Pay €20 deposit</a><br>
+        <button type="button" class="pill" data-close style="margin-top:18px"><i></i>Back to the page</button></div>
       </div>
     </div>
     <div class="ft" id="bkft"><button type="button" class="back" id="bkb" hidden>← Back</button><span class="sp"></span><button type="button" class="pill nx" id="bkn" disabled>Continue</button></div>
@@ -512,30 +520,48 @@ footer .fl0{height:54px;width:auto;margin:0 auto 28px}
 <script>
 /* ================= CONFIG (edit here) ================= */
 const WEB3FORMS_KEY = "13442d9f-a6a4-4ceb-810f-551d5f4ad86a";
+/* ---- OPENING HOURS: edit these two lines to change when clients can book ----
+   HOURS: per weekday the start times clients can pick. [] = closed that day.
+   Mina always starts at 10:00 (never earlier). Example evening-only day: wed:["17:00"]
+   BLOCKED_DATES: days off / fully booked, format "YYYY-MM-DD". */
+const HOURS = {
+  mon: [],
+  tue: ["10:00","15:00"],
+  wed: ["10:00","15:00"],
+  thu: ["10:00","15:00"],
+  fri: ["10:00","15:00"],
+  sat: ["10:00","15:00"],
+  sun: []
+};
+const BLOCKED_DATES = [];     // e.g. ["2026-12-24","2026-12-25"]
+/* ---------------------------------------------------------------------------- */
 const BOOKING = {
-  workDays: [2,3,4,5,6],      // 0=Sun 1=Mon ... 6=Sat. Opening days are NOT confirmed yet, set with Mina.
-  slots: ["10:00","15:00"],   // start times (opens 10:00), 4-5 h each.
+  hours: HOURS,
   minNoticeDays: 1,           // 1 = no same-day bookings
   daysAhead: 60,              // how far ahead clients can book
-  closed: []                  // dates she is off, e.g. ["2026-12-24","2026-12-25"]
+  closed: BLOCKED_DATES
 };
-const DEPOSIT_NOTE = "€20–30, deducted from your total. Payment link follows by message."; // planned policy, set to "" to hide the amount
+const DEPOSIT_NOTE = "The deposit is deducted from the price."; // fixed €20 for every booking
+/* DEPOSIT_LINK: paste Mina's payment link here (e.g. a payment link). Empty = no "Pay €20 deposit" button. */
+const DEPOSIT_LINK = "";
+/* HERO_PHOTOS: photos that crossfade in the hero, every 4 s */
+const HERO_PHOTOS = ["img/ig-layers.jpg","img/ig-curly-3.jpg","img/ig-straight.jpg","img/ig-halfup.jpg"];
 /* ===================================================== */
 
 const SERVICES=[
- {id:"sewin",name:"Sew-in leave-out",img:"img/ig-straight.jpg",lasts:"4–8 weeks",
+ {id:"sewin",name:"Sew-in leave-out",img:"img/ig-straight.jpg",lasts:"4–8 weeks",time:"4 to 5 hours",
   what:"Extensions sewn onto a braid-down, with a little of your own hair left out and blended in.",
   who:"Curly and coily hair, natural or previously relaxed. Fine hair gets an adapted leave-out."},
- {id:"curly",name:"Curly flip\u2011over",img:"img/ig-curly-3.jpg",lasts:"4–8 weeks",
+ {id:"curly",name:"Curly flip\u2011over",img:"img/ig-curly-3.jpg",lasts:"4–8 weeks",time:"4 to 5 hours",
   what:"A sew-in with a full curly finish, made to blend with curly and coily textures.",
   who:"Anyone who wants volume and curls that look like her own."},
- {id:"straight",name:"Straight flip\u2011over",img:"img/ig-bodywave.jpg",lasts:"4–8 weeks",
+ {id:"straight",name:"Straight flip\u2011over",img:"img/ig-bodywave.jpg",lasts:"4–8 weeks",time:"4 to 5 hours",
   what:"A sew-in with a sleek, straight finish.",
   who:"Anyone who wants long, sleek hair without heat on her own hair every day."},
- {id:"pony",name:"Ponytail",img:"img/ig-halfup-2.jpg",lasts:"1.5–2 weeks",
+ {id:"pony",name:"Ponytail",img:"img/ig-halfup-2.jpg",lasts:"1.5–2 weeks",time:"2 to 3 hours",
   what:"A custom ponytail installed over your own hair.",
   who:"Curly and coily hair. Coily hair is stretched and dried first for a sleek result."},
- {id:"half",name:"Half\u2011up half\u2011down",img:"img/ig-halfup.jpg",lasts:"about 2 weeks",
+ {id:"half",name:"Half\u2011up half\u2011down",img:"img/ig-halfup.jpg",lasts:"about 2 weeks",time:"3 hours",
   what:"The top half up in a ponytail, the rest flowing down.",
   who:"Anyone who wants a ponytail look with length and movement."}
 ];
@@ -557,7 +583,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const sg=$("#svcs");
 SERVICES.forEach((s,i)=>{const b=document.createElement("button");b.className="svc rv";b.style.setProperty("--d",(i*.07)+"s");b.dataset.view="";
  b.setAttribute("aria-label",s.name+", details");
- b.innerHTML=`<div class="ph"><img loading="lazy" src="${s.img}" alt="${esc(s.name)} by Coiffure Mina"></div><b>${s.name}</b><small><span>Lasts ${s.lasts}</span><u>+</u></small>`;
+ b.innerHTML=`<div class="ph"><img loading="lazy" src="${s.img}" alt="${esc(s.name)} by Coiffure Mina"></div><b>${s.name}</b><small><span>${s.time} · lasts ${s.lasts}</span><u>+</u></small>`;
  b.onclick=()=>openSvc(s);sg.appendChild(b)});
 /* instagram grid */
 const ig=$("#ig");
@@ -573,31 +599,31 @@ addEventListener("keydown",e=>{if(e.key==="Escape"){const o=$$(".ov.on").pop();o
 
 const sdo=$("#sdo");
 function openSvc(s){$("#sdi").src=s.img;$("#sdi").alt=s.name+" by Coiffure Mina";$("#sdt").textContent=s.name;$("#sdw").textContent=s.what;
- $("#sdd").innerHTML=[["For",s.who],["Time","About 4 to 5 hours"],["Lasts",s.lasts[0].toUpperCase()+s.lasts.slice(1)],["Aftercare","You leave with aftercare tips and product advice. Something off in the first 1–2 weeks? Message me."],["Bring","Washed, blow-dried hair and your hair, or hair from CM Xtensions."]].map(r=>`<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join("");
+ $("#sdd").innerHTML=[["For",s.who],["Time",(s.id==="sewin"||s.id==="curly"||s.id==="straight"?"About ":"")+s.time],["Lasts",s.lasts[0].toUpperCase()+s.lasts.slice(1)],["Aftercare","You leave with aftercare tips and product advice. Something off in the first 1–2 weeks? Message me."],["Bring","Washed, blow-dried hair and your own hair, or pre-ordered extensions from CM Xtensions."]].map(r=>`<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join("");
  $("#sdb").onclick=()=>{closeOv(sdo);openBook(s.id)};openOv(sdo)}
 
 /* ================= booking flow ================= */
 const bko=$("#bko"),bf=$("#bf"),N=5;let step=1,sel={date:null,time:null};
 const so=$("#svcopts");
 SERVICES.forEach(s=>{const l=document.createElement("label");l.className="opt";
- l.innerHTML=`<input type="radio" name="service" value="${esc(s.name)}" data-id="${s.id}"><img src="${s.img}" alt=""><div><b>${s.name}</b><small>Lasts ${s.lasts} · 4–5 h</small></div><span class="ck"></span>`;so.appendChild(l)});
-$("#deptx").textContent=DEPOSIT_NOTE||"Payment link follows by message.";
+ l.innerHTML=`<input type="radio" name="service" value="${esc(s.name)}" data-id="${s.id}"><img src="${s.img}" alt=""><div><b>${s.name}</b><small>${s.time} · lasts ${s.lasts}</small></div><span class="ck"></span>`;so.appendChild(l)});
+$("#deptx").textContent=DEPOSIT_NOTE||"The deposit is deducted from the price.";
 $$("[data-book]").forEach(b=>b.addEventListener("click",e=>{e.preventDefault();openBook()}));
 function openBook(id){if(step===6)resetBook();if(id){const r=$(`input[name=service][data-id="${id}"]`);r.checked=true;go(2)}else go(step);openOv(bko)}
-function resetBook(){bf.reset();sel={date:null,time:null};$("#err").hidden=true;$("#bkft").style.display="";go(1)}
+function resetBook(){bf.reset();sel={date:null,time:null};$("#err").hidden=true;$("#preo").hidden=true;$("#bkft").style.display="";go(1)}
 function val(n){const r=bf.elements.namedItem(n);if(!r||typeof r!=="object")return"";if(r instanceof RadioNodeList){return r.value}return r.type==="checkbox"?(r.checked?r.value:""):String(r.value||"").trim()}
 function valid(s){
  if(s===1)return!!val("service");
- if(s===2)return!!val("hair_type")&&!!val("hair_source")&&(!bf.inspiration.value||bf.inspiration.checkValidity());
+ if(s===2)return!!val("hair_type")&&!!val("hair_source")&&!!val("style")&&(!bf.inspiration.value||bf.inspiration.checkValidity());
  if(s===3)return!!(sel.date&&sel.time);
  if(s===4)return!!val("name")&&bf.email.checkValidity()&&!!val("email")&&val("phone").replace(/\D/g,"").length>=8;
- if(s===5)return!!val("payment")&&bf.ready.checked;return true}
+ if(s===5)return!!val("payment")&&bf.ready.checked&&bf.consent.checked;return true}
 function upd(){$("#bkn").disabled=!valid(step)}
 function go(s){step=s;$$(".stp",bf).forEach(e=>e.classList.toggle("on",+e.dataset.s===s));
  $("#bkst").textContent=s<6?`Step ${s} of ${N}`:"Done";$("#bkbar").style.width=(Math.min(s,N)/N*100)+"%";
  $("#bkb").hidden=s===1||s===6;$("#bkn").textContent=s===5?"Request booking":"Continue";
- if(s===6)$("#bkft").style.display="none";if(s===3)renderCal();if(s===5)renderSum();$("#bksc").scrollTop=0;upd()}
-bf.addEventListener("input",upd);bf.addEventListener("change",()=>{upd();if(step===5)renderSum()});
+ if(s===6)$("#bkft").style.display="none";if(s===3){const sv=SERVICES.find(x=>x.name===val("service"));$("#dur").textContent=(sv?"About "+sv.time:"About 4 to 5 hours")+", all included."}if(s===3)renderCal();if(s===5)renderSum();$("#bksc").scrollTop=0;upd()}
+bf.addEventListener("input",upd);bf.addEventListener("change",()=>{upd();$("#preo").hidden=val("hair_source")!=="Pre-order extensions";if(step===5)renderSum()});
 $("#bkb").onclick=()=>go(step-1);
 $("#bkn").onclick=()=>{if(!valid(step))return;step<5?go(step+1):send()};
 bf.addEventListener("submit",e=>e.preventDefault());
@@ -609,7 +635,9 @@ const last=new Date(today);last.setDate(last.getDate()+BOOKING.daysAhead);
 let view=new Date(first.getFullYear(),first.getMonth(),1);
 const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const nice=d=>d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
-const open=d=>d>=first&&d<=last&&BOOKING.workDays.includes(d.getDay())&&!BOOKING.closed.includes(iso(d));
+const DAYKEYS=["sun","mon","tue","wed","thu","fri","sat"];
+const slotsFor=d=>(BOOKING.hours[DAYKEYS[d.getDay()]]||[]).filter(t=>t>="10:00");
+const open=d=>d>=first&&d<=last&&slotsFor(d).length>0&&!BOOKING.closed.includes(iso(d));
 function renderCal(){const g=$("#cgr");g.innerHTML=["Mo","Tu","We","Th","Fr","Sa","Su"].map(w=>`<span class="wd">${w}</span>`).join("");
  $("#cmt").textContent=view.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
  const pad=(view.getDay()+6)%7;for(let i=0;i<pad;i++)g.appendChild(document.createElement("span"));
@@ -620,23 +648,25 @@ function renderCal(){const g=$("#cgr");g.innerHTML=["Mo","Tu","We","Th","Fr","Sa
  $("#cpv").disabled=view<=new Date(first.getFullYear(),first.getMonth(),1);
  $("#cnx").disabled=new Date(view.getFullYear(),view.getMonth()+1,1)>last;
  const w=$("#slw");if(!sel.date){w.innerHTML='<p class="sl-h">Pick a day with a pink dot.</p>';return}
- w.innerHTML=`<p class="sl-h">${nice(sel.date)}</p><div class="slots">${BOOKING.slots.map(t=>`<button type="button" class="${sel.time===t?"sel":""}">${t}</button>`).join("")}</div>`;
+ w.innerHTML=`<p class="sl-h">${nice(sel.date)}</p><div class="slots">${slotsFor(sel.date).map(t=>`<button type="button" class="${sel.time===t?"sel":""}">${t}</button>`).join("")}</div>`;
  $$(".slots button",w).forEach(b=>b.onclick=()=>{sel.time=b.textContent;renderCal();upd()})}
 $("#cpv").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);renderCal()};
 $("#cnx").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);renderCal()};
 
-function data(){const extra=$$("input[name=extra]:checked").map(i=>i.value).join(", ");
+function data(){
  return{"Service":val("service").replace(/\u2011/g,"-"),"Date":sel.date?nice(sel.date):"","Time":sel.time||"","Hair type":val("hair_type"),"Own hair":val("hair_state"),"Hair for install":val("hair_source"),
- "Length":val("hair_length"),"Colour":val("colour"),"Extra":extra,"Inspiration":val("inspiration"),"Notes":val("notes"),
- "Name":val("name"),"Email":val("email"),"Phone":val("phone"),"Instagram":val("instagram"),"Payment":val("payment"),"Washed and blow-dried":bf.ready.checked?"Yes":"No"}}
-function renderSum(){const d=data();$("#sum").innerHTML=["Service","Date","Time","Hair for install"].map(k=>`<div><span>${k}</span><span>${esc(d[k]||"–")}</span></div>`).join("")}
+ "Style":val("style"),"Inspiration":val("inspiration"),"Notes":val("notes"),
+ "Name":val("name"),"Email":val("email"),"Phone":val("phone"),"Instagram":val("instagram"),"Birthday":val("birthday"),"Payment":val("payment"),"Deposit":"€20","Washed and blow-dried":bf.ready.checked?"Yes":"No","Consent to film and share (hair and face, social media + website)":bf.consent.checked?"Yes":"No"}}
+function renderSum(){const d=data();$("#sum").innerHTML=["Service","Date","Time","Hair for install","Style"].map(k=>`<div><span>${k}</span><span>${esc(d[k]||"–")}</span></div>`).join("")}
 
 async function send(){const b=$("#bkn"),er=$("#err");b.disabled=true;b.textContent="Sending…";er.hidden=true;
  const d=data();
  const payload=Object.assign({access_key:WEB3FORMS_KEY,subject:`New booking request: ${d.Service}, ${d.Date} ${d.Time}`,from_name:"Coiffure Mina booking page",replyto:d.Email,botcheck:bf.botcheck.checked},d);
  try{const r=await fetch("https://api.web3forms.com/submit",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify(payload)});
   const j=await r.json().catch(()=>({}));if(!r.ok||j.success===false)throw new Error(j.message||"Failed");
-  $("#donep").textContent=`${d.Service} on ${d.Date} at ${d.Time}. Mina confirms by message and sends you the address.`+(d.Payment==="Pay deposit now"?" Your payment link follows by message.":"");go(6)}
+  $("#donep").textContent=`${d.Service} on ${d.Date} at ${d.Time}. Mina confirms by message and sends you the address.`;
+  const db=$("#depbtn");if(DEPOSIT_LINK){db.href=DEPOSIT_LINK;db.hidden=false;$("#depp").textContent="Pay it now with the button below, or use the link Mina sends you."}else{db.hidden=true;$("#depp").textContent="A payment link or QR code follows by message."}
+  go(6)}
  catch(e){er.textContent="Sending didn't work. Try again, or DM @coiffuremina.co on Instagram.";er.hidden=false;b.textContent="Request booking";upd()}}
 
 /* ================= FAQ accordion (smooth) ================= */
@@ -655,6 +685,10 @@ $$('a[href^="#"]:not([data-book])').forEach(a=>a.addEventListener("click",e=>{co
 /* ================= header + hero video ================= */
 const hd=$("#hd");let sy=scrollY;
 addEventListener("scroll",()=>{sy=scrollY;hd.classList.toggle("sm",sy>30)},{passive:true});hd.classList.toggle("sm",sy>30);
+/* hero photos: crossfade between HERO_PHOTOS every 4 s (skipped with reduced motion) */
+(function(){const hm=$(".hm"),f=$(".hm img.hr");if(!hm||!f||RED||HERO_PHOTOS.length<2)return;
+ const ims=[f];HERO_PHOTOS.slice(1).forEach(src=>{const i=document.createElement("img");i.className="hr";i.src=src;i.alt="Hair by Coiffure Mina";i.decoding="async";ims[ims.length-1].after(i);ims.push(i)});
+ let k=0;setInterval(()=>{if(document.hidden)return;const prev=ims[k];k=(k+1)%ims.length;const nx=ims[k];ims.forEach(i=>i.style.zIndex=0);prev.style.zIndex=1;nx.style.zIndex=2;nx.classList.add("on");setTimeout(()=>{if(prev!==ims[k])prev.classList.remove("on")},1300)},4000)})();
 /* hero video: shows only when img/hero.mp4 exists and plays; otherwise the photo stays */
 (function(){const v=$(".hero video");if(!v)return;
  if(RED){v.remove();return}
