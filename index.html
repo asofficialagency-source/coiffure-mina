@@ -14,7 +14,7 @@
     length and the layers/trim extra are removed; new "Style" question (Bob, Layers, Natural, I don't know yet).
   - New required consent checkbox (filming + sharing photos/videos), sent to Web3Forms.
   - Hours: edit HOURS (per weekday) + BLOCKED_DATES at the top of the script. Starts at 10:00, never earlier.
-  - Payment: cash option removed, fixed EUR 20 deposit. DEPOSIT_LINK = "" -> set a link to show a "Pay EUR 20 deposit" button.
+  - Payment: cash option removed, fixed EUR 20 deposit. DEPOSIT_LINK set 23-11 (Bancontact Pay, expires 22/01/2027).
   Changes 22-11 (audit):
   - cmx.html (CM Xtensions page) exists now; index.html#preorder opens the booking with "Pre-order extensions" ticked.
   - CALCOM_URL: empty = fixed slots below. Filled = the Cal.com calendar is embedded in step 3, so taken times are
@@ -594,8 +594,9 @@ const BOOKING = {
   closed: BLOCKED_DATES
 };
 const DEPOSIT_NOTE = "The deposit is deducted from the price."; // fixed €20 for every booking
-/* DEPOSIT_LINK: paste Mina's payment link here (e.g. a payment link). Empty = no "Pay €20 deposit" button. */
-const DEPOSIT_LINK = "";
+/* DEPOSIT_LINK: Mina's payment link. Empty = no "Pay €20 deposit" button.
+   Bancontact Pay link from Mina (23-11). EXPIRES 22/01/2027: ask Mina for a new link before that date. */
+const DEPOSIT_LINK = "https://pay.bancontact.com/p2p/21b97ea4-c7f8-465a-8ea4-5cd859533308";
 /* CALCOM_URL: Mina's Cal.com booking link, e.g. "https://cal.com/coiffuremina/appointment".
    Empty = the fixed slots from HOURS above (no blocking of taken times).
    Filled = step 3 shows her Cal.com calendar: taken times disappear there, so no double bookings. See README.md. */
